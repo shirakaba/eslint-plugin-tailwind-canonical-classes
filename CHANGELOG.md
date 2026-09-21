@@ -1,4 +1,8 @@
-## [1.4.1](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.4.0...v1.4.1) (2026-07-15)
+## [2.0.0](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.4.1...v2.0.0) (2026-09-21)
+
+### Bug Fixes
+
+- make much faster by running `tailwind-canonicalize` in-process rather than spinning up a `@tailwindcss/node` worker.
 
 
 ### Bug Fixes
