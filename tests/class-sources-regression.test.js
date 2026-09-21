@@ -1,6 +1,4 @@
-import './synckit-mock.js';
-import { resetCanonicalizeMock } from './synckit-mock.js';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { RuleTester } from 'eslint';
 import {
   getTestCssPath,
@@ -17,10 +15,6 @@ import tailwindCanonicalClasses from '../lib/rules/tailwind-canonical-classes.js
 
 describe('class-sources regression', () => {
   const cssPath = getTestCssPath();
-
-  beforeEach(() => {
-    resetCanonicalizeMock();
-  });
 
   describe('estree helpers', () => {
     it('splitClasses trims and splits on whitespace', () => {

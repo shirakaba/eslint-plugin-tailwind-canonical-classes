@@ -6,19 +6,32 @@ export function reportClassSources(
   sources: ClassSource[],
   ctx: CanonicalizationContext,
 ): void {
-  for (const source of sources) {
-    try {
-      const canonicalized = ctx.canonicalizeClasses(source.classes);
+  if (sources.length === 0) {
+    return;
+  }
 
-      if (canonicalized === null) {
+  try {
+    const candidates = sources.flatMap((source) => source.classes);
+    const canonicalized = ctx.canonicalizeClasses(candidates);
+
+    if (canonicalized === null) {
+      for (const source of sources) {
         context.report({
           node: source.cssNotFoundNode ?? source.reportNode,
           messageId: 'cssNotFound',
           data: { path: ctx.cssPath },
         });
-        continue;
       }
+      return;
+    }
 
+    let offset = 0;
+    for (const source of sources) {
+      const canonicalizedSource = canonicalized.slice(
+        offset,
+        offset + source.classes.length,
+      );
+      offset += source.classes.length;
       const errors: Array<{
         original: string;
         canonical: string;
@@ -26,7 +39,7 @@ export function reportClassSources(
       }> = [];
 
       source.classes.forEach((className, index) => {
-        const canonical = canonicalized[index];
+        const canonical = canonicalizedSource[index];
         if (canonical && canonical !== className) {
           errors.push({ original: className, canonical, index });
         }
@@ -57,8 +70,8 @@ export function reportClassSources(
               : undefined,
         });
       });
-    } catch {
-      // Match prior behavior: swallow canonicalization failures silently.
     }
+  } catch {
+    // A canonicalization failure must not prevent the rest of ESLint from running.
   }
 }

@@ -18,7 +18,7 @@ const rule: Rule.RuleModule = {
     type: 'suggestion',
     docs: {
       description:
-        'Enforce canonical Tailwind CSS class names using Tailwind CSS v4 canonicalization API',
+        'Enforce canonical Tailwind CSS v4 class names with low overhead',
     },
     fixable: 'code',
     messages: {

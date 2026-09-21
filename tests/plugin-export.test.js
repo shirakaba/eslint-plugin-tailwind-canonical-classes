@@ -68,10 +68,7 @@ describe('plugin export shape', () => {
     );
   });
 
-  it('exports recommended legacy config', () => {
-    const legacyConfig = plugin.configs.recommended;
-    expect(legacyConfig).toBeDefined();
-    expect(legacyConfig.plugins).toEqual(['tailwind-canonical-classes']);
-    expect(legacyConfig.rules['tailwind-canonical-classes/tailwind-canonical-classes']).toBe('warn');
+  it('does not export a legacy eslintrc config', () => {
+    expect(plugin.configs.recommended).toBeUndefined();
   });
 });

@@ -31,7 +31,15 @@ describe('tailwind-canonical-classes (Integration)', () => {
           },
         ],
       },
+      {
+        code: '<div className="bg-[#123456] w-[10px]">Content</div>',
+        output: '<div className="bg-brand w-brand">Content</div>',
+        options: [{ cssPath: getTestCssPath('custom-theme.css') }],
+        errors: [
+          { messageId: 'nonCanonical' },
+          { messageId: 'nonCanonical' },
+        ],
+      },
     ],
   });
 }, 30000);
-

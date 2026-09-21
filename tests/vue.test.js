@@ -1,6 +1,4 @@
-import './synckit-mock.js';
-import { resetCanonicalizeMock } from './synckit-mock.js';
-import { describe, beforeEach } from 'vitest';
+import { describe } from 'vitest';
 import { RuleTester } from 'eslint';
 import {
   getTestCssPath,
@@ -11,10 +9,6 @@ import tailwindCanonicalClasses from '../lib/rules/tailwind-canonical-classes.js
 
 describe('tailwind-canonical-classes (Vue)', () => {
   const cssPath = getTestCssPath();
-
-  beforeEach(() => {
-    resetCanonicalizeMock();
-  });
 
   const ruleTester = new RuleTester(getVueRuleTesterConfig());
   const vueFile = { filename: 'Component.vue' };

@@ -1,7 +1,7 @@
 {
-  "name": "eslint-plugin-tailwind-canonical-classes",
+  "name": "@shirakaba/eslint-plugin-tailwind-canonical-classes",
   "version": "1.4.1",
-  "description": "ESLint plugin to enforce canonical Tailwind CSS class names using Tailwind CSS v4's canonicalization API",
+  "description": "Fast ESLint enforcement for canonical Tailwind CSS v4 class names",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -27,18 +27,21 @@
     "lint",
     "css"
   ],
-  "author": "Maisonnat Maxence <maisonnatmax@gmail.com>",
+  "authors": [
+    "Jamie Birch <14055146+shirakaba@users.noreply.github.com> (https://github.com/shirakaba)",
+    "Maisonnat Maxence <maisonnatmax@gmail.com>"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes.git"
+    "url": "https://github.com/shirakaba/eslint-plugin-tailwind-canonical-classes.git"
   },
   "bugs": {
-    "url": "https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/issues"
+    "url": "https://github.com/shirakaba/eslint-plugin-tailwind-canonical-classes/issues"
   },
-  "homepage": "https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes#readme",
+  "homepage": "https://github.com/shirakaba/eslint-plugin-tailwind-canonical-classes#readme",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "build": "tsc",
@@ -46,10 +49,11 @@
     "test": "npm run build && vitest",
     "test:run": "npm run build && vitest run",
     "prepublishOnly": "npm run build",
+    "postinstall": "npm run build",
     "release": "semantic-release"
   },
   "peerDependencies": {
-    "eslint": "^8.0.0 || ^9.0.0 || ^10.0.0",
+    "eslint": "^9.0.0 || ^10.0.0",
     "svelte-eslint-parser": "^1.0.0",
     "vue-eslint-parser": "^9.0.0 || ^10.0.0"
   },
@@ -62,8 +66,7 @@
     }
   },
   "dependencies": {
-    "@tailwindcss/node": "^4.3.2",
-    "synckit": "^0.11.13"
+    "tailwind-canonicalize": "^0.1.19"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",

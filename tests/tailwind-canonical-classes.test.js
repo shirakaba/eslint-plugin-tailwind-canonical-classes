@@ -1,6 +1,4 @@
-import './synckit-mock.js';
-import { resetCanonicalizeMock } from './synckit-mock.js';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { RuleTester } from 'eslint';
 import { getTestCssPath, getRuleTesterConfig } from './test-utils.js';
 
@@ -8,10 +6,6 @@ import tailwindCanonicalClasses from '../lib/rules/tailwind-canonical-classes.js
 
 describe('tailwind-canonical-classes', () => {
   const cssPath = getTestCssPath();
-
-  beforeEach(() => {
-    resetCanonicalizeMock();
-  });
 
   const ruleTester = new RuleTester(getRuleTesterConfig());
 
@@ -177,13 +171,27 @@ describe('tailwind-canonical-classes', () => {
       {
         code: '<div className="w-[20px]">Content</div>',
         output: '<div className="w-5">Content</div>',
-        options: [{ cssPath, rootFontSize: 20 }],
+        options: [{ cssPath }],
         errors: [
           {
             messageId: 'nonCanonical',
             data: {
               original: 'w-[20px]',
               canonical: 'w-5',
+            },
+          },
+        ],
+      },
+      {
+        code: '<div className="w-[20px]">Content</div>',
+        output: '<div className="w-4">Content</div>',
+        options: [{ cssPath, rootFontSize: 20 }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[20px]',
+              canonical: 'w-4',
             },
           },
         ],
@@ -361,14 +369,14 @@ describe('tailwind-canonical-classes', () => {
       },
       {
         code: '<div className={cn("w-[20px]")}>Content</div>',
-        output: '<div className={cn("w-5")}>Content</div>',
+        output: '<div className={cn("w-4")}>Content</div>',
         options: [{ cssPath, rootFontSize: 20 }],
         errors: [
           {
             messageId: 'nonCanonical',
             data: {
               original: 'w-[20px]',
-              canonical: 'w-5',
+              canonical: 'w-4',
             },
           },
         ],

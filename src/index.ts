@@ -73,13 +73,6 @@ Object.assign(plugin.configs!, {
       },
     },
   ],
-
-  recommended: {
-    plugins: ['tailwind-canonical-classes'],
-    rules: {
-      'tailwind-canonical-classes/tailwind-canonical-classes': 'warn',
-    },
-  },
 });
 
 Object.defineProperties(plugin.configs!, {

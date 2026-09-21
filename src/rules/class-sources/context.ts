@@ -1,34 +1,81 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { createSyncFn } from 'synckit';
+import {
+  canonicalizeClasses,
+  loadThemeFromCss,
+} from 'tailwind-canonicalize';
 import type { Rule, SourceCode } from 'eslint';
 import type { CanonicalizationContext, RuleOptions } from './types.js';
 
-const workerPath = fileURLToPath(
-  new URL('../tailwind-worker.js', import.meta.url),
-);
+type Theme = ReturnType<typeof loadThemeFromCss>;
+type CanonicalizationCache = Map<string, unknown>;
 
-const canonicalizeSync = createSyncFn(workerPath) as (
-  cssContent: string,
-  basePath: string,
-  candidates: string[],
-  options: { rem?: number },
-) => string[];
+interface ThemeCacheEntry {
+  mtimeMs: number;
+  size: number;
+  theme: Theme;
+  canonicalizationsByRootFontSize: Map<number, CanonicalizationCache>;
+}
 
-function canonicalizeClassesFromFile(
-  cssPath: string,
-  candidates: string[],
-  rootFontSize: number,
-): string[] | null {
-  if (!fs.existsSync(cssPath)) {
+const themeCache = new Map<string, ThemeCacheEntry>();
+
+function loadTheme(cssPath: string): ThemeCacheEntry | null {
+  let stats: fs.Stats;
+  try {
+    stats = fs.statSync(cssPath);
+  } catch {
     return null;
   }
 
-  const cssContent = fs.readFileSync(cssPath, 'utf-8');
-  const basePath = path.dirname(cssPath);
+  let cached = themeCache.get(cssPath);
+  if (
+    !cached ||
+    cached.mtimeMs !== stats.mtimeMs ||
+    cached.size !== stats.size
+  ) {
+    const cssContent = fs.readFileSync(cssPath, 'utf8');
+    cached = {
+      mtimeMs: stats.mtimeMs,
+      size: stats.size,
+      theme: loadThemeFromCss(cssContent),
+      canonicalizationsByRootFontSize: new Map(),
+    };
+    themeCache.set(cssPath, cached);
+  }
 
-  return canonicalizeSync(cssContent, basePath, candidates, { rem: rootFontSize });
+  return cached;
+}
+
+function createCanonicalizer(
+  cssPath: string,
+  rootFontSize: number,
+): (candidates: string[]) => string[] | null {
+  let loadedTheme: ThemeCacheEntry | null | undefined;
+
+  return (candidates) => {
+    if (loadedTheme === undefined) {
+      loadedTheme = loadTheme(cssPath);
+    }
+    if (!loadedTheme) {
+      return null;
+    }
+
+    let canonicalizations =
+      loadedTheme.canonicalizationsByRootFontSize.get(rootFontSize);
+    if (!canonicalizations) {
+      canonicalizations = new Map();
+      loadedTheme.canonicalizationsByRootFontSize.set(
+        rootFontSize,
+        canonicalizations,
+      );
+    }
+
+    return canonicalizeClasses(candidates, {
+      theme: loadedTheme.theme,
+      rootFontSizePx: rootFontSize,
+      cache: canonicalizations,
+    });
+  };
 }
 
 export interface ResolvedCssPath {
@@ -77,15 +124,8 @@ export interface RuleSetupResult {
   context?: CanonicalizationContext;
 }
 
-type LegacyRuleContext = Rule.RuleContext & {
-  getSourceCode?: () => SourceCode;
-  getCwd?: () => string;
-  getFilename?: () => string;
-};
-
 function resolveSourceCode(context: Rule.RuleContext): SourceCode {
-  const legacyContext = context as LegacyRuleContext;
-  return legacyContext.sourceCode ?? legacyContext.getSourceCode!();
+  return context.sourceCode;
 }
 
 export function setupRuleContext(
@@ -93,8 +133,7 @@ export function setupRuleContext(
   options: RuleOptions | undefined,
 ): RuleSetupResult {
   const sourceCode = resolveSourceCode(context);
-  const legacyContext = context as LegacyRuleContext;
-  const cwd = legacyContext.cwd ?? legacyContext.getCwd?.() ?? process.cwd();
+  const cwd = context.cwd ?? process.cwd();
 
   if (!options?.cssPath) {
     return {
@@ -103,8 +142,7 @@ export function setupRuleContext(
     };
   }
 
-  const filename =
-    legacyContext.filename ?? legacyContext.getFilename?.();
+  const filename = context.filename;
   const { cssPath, resolvedViaWalkUp } = resolveCssPath(options, cwd, filename);
 
   if (!fs.existsSync(cssPath)) {
@@ -133,8 +171,7 @@ export function setupRuleContext(
       rootFontSize,
       calleeFunctions,
       sourceText: sourceCode.getText(),
-      canonicalizeClasses: (candidates) =>
-        canonicalizeClassesFromFile(cssPath, candidates, rootFontSize),
+      canonicalizeClasses: createCanonicalizer(cssPath, rootFontSize),
     },
   };
 }
