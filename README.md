@@ -43,19 +43,19 @@ A speedy fork of [eslint-plugin-tailwind-canonical-classes](https://github.com/M
 Install the plugin, aliasing it to `eslint-plugin-tailwind-canonical-classes`:
 
 ```bash
-npm install --save-dev eslint-plugin-tailwind-canonical-classes@npm:@shirakaba/eslint-plugin-tailwind-canonical-classes
+npm install --save-dev 'eslint-plugin-tailwind-canonical-classes@npm:@shirakaba/eslint-plugin-tailwind-canonical-classes'
 ```
 
 Or with yarn:
 
 ```bash
-yarn add -D eslint-plugin-tailwind-canonical-classes@npm:@shirakaba/eslint-plugin-tailwind-canonical-classes
+yarn add -D 'eslint-plugin-tailwind-canonical-classes@npm:@shirakaba/eslint-plugin-tailwind-canonical-classes'
 ```
 
 Or with pnpm:
 
 ```bash
-pnpm add -D eslint-plugin-tailwind-canonical-classes@npm:@shirakaba/eslint-plugin-tailwind-canonical-classes
+pnpm add -D 'eslint-plugin-tailwind-canonical-classes@npm:@shirakaba/eslint-plugin-tailwind-canonical-classes'
 ```
 
 ### Requirements
